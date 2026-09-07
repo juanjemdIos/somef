@@ -215,9 +215,13 @@ def save_codemeta_output(repo_data, outfile, pretty=False, requirements_mode='al
         code_parser_requirements = []
         seen_structured = set()
         for x in repo_data[constants.CAT_REQUIREMENTS]:
-            if x.get(constants.PROP_TECHNIQUE) == constants.TECHNIQUE_CODE_CONFIG_PARSER:
+            technique = x.get(constants.PROP_TECHNIQUE)
+            technique_list = technique if isinstance(technique, list) else [technique]
+            if constants.TECHNIQUE_CODE_CONFIG_PARSER in technique_list:
+                
                 source = x.get("source", "")
-                if any(src in source for src in constants.STRUCTURED_REQUIREMENTS_SOURCES):
+                source_list = source if isinstance(source, list) else [source]
+                if any(src in s for s in source_list for src in constants.STRUCTURED_REQUIREMENTS_SOURCES):
                     name = x[constants.PROP_RESULT].get(constants.PROP_NAME) or x[constants.PROP_RESULT].get(constants.PROP_VALUE)
                     version = x[constants.PROP_RESULT].get(constants.PROP_VERSION)
                     # key = f"{name.strip()}|{version.strip() if version else ''}"
@@ -242,10 +246,14 @@ def save_codemeta_output(repo_data, outfile, pretty=False, requirements_mode='al
         other_requirements = []
         seen_text = set()
         for x in repo_data[constants.CAT_REQUIREMENTS]:
+            technique = x.get(constants.PROP_TECHNIQUE)
+            technique_list = technique if isinstance(technique, list) else [technique]
+            source = x.get("source")
+            source_list = source if isinstance(source, list) else [source] if source is not None else []
             if not (
-                x.get(constants.PROP_TECHNIQUE) == constants.TECHNIQUE_CODE_CONFIG_PARSER
-                and x.get("source") is not None
-                and any(src in x["source"] for src in constants.STRUCTURED_REQUIREMENTS_SOURCES)
+                constants.TECHNIQUE_CODE_CONFIG_PARSER in technique_list
+                and source is not None
+                and any(src in s for s in source_list for src in constants.STRUCTURED_REQUIREMENTS_SOURCES)
             ):
                 result = x.get(constants.PROP_RESULT, {}) 
                 req_type = result.get("type", "") 
