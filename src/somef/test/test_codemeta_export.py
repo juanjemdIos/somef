@@ -1123,6 +1123,30 @@ class TestCodemetaExport(unittest.TestCase):
         os.remove(output_path)
 
 
+    def test_issue_1105_credit_text_deduplication(self):
+        """Checks that creditText for the same publication is not duplicated. 
+            Problem with citations with the same title but different authors, which should be deduplicated to a single creditText entry.
+        """
+        output_path = test_data_path + 'test_codemeta_credit_text.json'
+        somef_cli.run_cli(threshold=0.8,
+                        ignore_classifiers=False,
+                        repo_url=None,
+                        local_repo=test_data_repositories + "fair-ontologies",
+                        output=None,
+                        codemeta_out=output_path,
+                        pretty=True,
+                        readme_only=False)
+
+        with open(output_path) as f:
+            json_content = json.load(f)
+
+        credit_text = json_content.get(constants.CAT_CODEMETA_CREDITTEXT, [])
+        assert credit_text, "Key 'creditText' is missing in JSON"
+
+        assert len(credit_text) == 1, \
+            f"Expected a single deduplicated creditText entry, got {len(credit_text)}: {credit_text}"
+
+        os.remove(output_path)
 
     @classmethod
     def tearDownClass(cls):
