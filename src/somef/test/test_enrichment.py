@@ -27,8 +27,6 @@ class TestEnrichment(unittest.TestCase):
             data = json.load(f)
 
         citations = data.get("citation", [])
-        # self.assertTrue(any("openalex_id" in c["result"] for c in citations))
-        # self.assertTrue(any("openaire_id" in c["result"] for c in citations))
 
         identifiers = data.get(constants.CAT_IDENTIFIER, [])
         constants.PROP_OPENAIRE_ID
